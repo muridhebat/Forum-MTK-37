@@ -40,7 +40,7 @@
     }
     
     /* ========================================
-       LOADING SCREEN - KUBUS 3D MATEMATIKA
+       LOADING SCREEN - KUBUS 3D (VERSI KECIL & CEPAT)
        ======================================== */
     .loading { 
       position: fixed; 
@@ -62,12 +62,12 @@
       pointer-events: none;
     }
 
-    /* Ukuran Kontainer Kubus */
+    /* Kontainer Kubus (Diperkecil jadi 40px) */
     .cube-container {
-      width: 60px;
-      height: 60px;
-      perspective: 200px;
-      margin-bottom: 30px;
+      width: 40px;
+      height: 40px;
+      perspective: 150px; /* Penyesuaian perspektif */
+      margin-bottom: 25px;
     }
 
     /* Kubus 3D */
@@ -76,34 +76,35 @@
       height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      animation: rotateCube 4s infinite linear;
+      /* DIPERCEPAT: Dari 4s menjadi 1.5s */
+      animation: rotateCube 1.5s infinite linear; 
     }
 
-    /* Sisi-sisi Kubus (Warna Rubik) */
+    /* Sisi-sisi Kubus (Ukuran 40px) */
     .face {
       position: absolute;
-      width: 60px;
-      height: 60px;
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 24px;
+      font-size: 18px; /* Ukuran font disesuaikan */
       color: rgba(0,0,0,0.3);
-      box-shadow: inset 0 0 15px rgba(255,255,255,0.5);
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
     }
 
-    /* Warna Sisi (Nuansa Pelangi/ Rubik) */
-    .front  { background: rgba(239, 68, 68, 0.9); transform: rotateY(0deg) translateZ(30px); }    /* Merah */
-    .back   { background: rgba(249, 115, 22, 0.9); transform: rotateY(180deg) translateZ(30px); } /* Oranye */
-    .right  { background: rgba(34, 197, 94, 0.9); transform: rotateY(90deg) translateZ(30px); }   /* Hijau */
-    .left   { background: rgba(59, 130, 246, 0.9); transform: rotateY(-90deg) translateZ(30px); } /* Biru */
-    .top    { background: rgba(255, 255, 255, 0.95); transform: rotateX(90deg) translateZ(30px); }/* Putih */
-    .bottom { background: rgba(234, 179, 8, 0.9); transform: rotateX(-90deg) translateZ(30px); }  /* Kuning */
+    /* Posisi & Warna Sisi (TranslateZ disesuaikan dengan setengah ukuran = 20px) */
+    .front  { background: rgba(239, 68, 68, 0.9); transform: rotateY(0deg) translateZ(20px); }
+    .back   { background: rgba(249, 115, 22, 0.9); transform: rotateY(180deg) translateZ(20px); }
+    .right  { background: rgba(34, 197, 94, 0.9); transform: rotateY(90deg) translateZ(20px); }
+    .left   { background: rgba(59, 130, 246, 0.9); transform: rotateY(-90deg) translateZ(20px); }
+    .top    { background: rgba(255, 255, 255, 0.95); transform: rotateX(90deg) translateZ(20px); }
+    .bottom { background: rgba(234, 179, 8, 0.9); transform: rotateX(-90deg) translateZ(20px); }
 
-    /* Animasi Berputar 360 Derajat dari Berbagai Arah */
+    /* Animasi Rotasi */
     @keyframes rotateCube {
       0%   { transform: rotateX(0deg) rotateY(0deg); }
       25%  { transform: rotateX(90deg) rotateY(90deg); }
@@ -114,14 +115,13 @@
 
     /* Teks Memuat Aplikasi */
     .loading-text {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
-      color: #334155; /* Warna Slate gelap, bukan putih */
+      color: #334155;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    /* Efek "Breathing" untuk teks */
     .loading-text::after {
       content: '';
       animation: dots 2s infinite;
@@ -139,11 +139,10 @@
 <body>
   <div class="container">
     
-    <!-- Loading Screen Baru -->
+    <!-- Loading Screen -->
     <div class="loading" id="loading">
       <div class="cube-container">
         <div class="cube">
-          <!-- 6 Sisi Kubus -->
           <div class="face front">∑</div>
           <div class="face back">π</div>
           <div class="face right">∫</div>
@@ -166,11 +165,14 @@
     
     const appFrame = document.getElementById('appFrame');
     const loading = document.getElementById('loading');
+
+    // ==========================================
+    // LOGIKA DELAY 6 DETIK
+    // ==========================================
+    const startTime = Date.now();
+    const MIN_LOAD_TIME = 6000; // 6 detik dalam milidetik
     
     function loadApp() {
-      // Tampilkan loading
-      loading.classList.remove('hidden');
-      
       const fullUrl = window.location.href;
       const params = new URLSearchParams(window.location.search);
       const id = params.get('id');
@@ -196,9 +198,25 @@
       appFrame.src = targetUrl;
     }
     
-    appFrame.addEventListener('load', function() {
-      // Sembunyikan loading dengan transisi halus
+    // Fungsi untuk menyembunyikan loading dengan aman
+    function hideLoading() {
       loading.classList.add('hidden');
+    }
+
+    // Event Listener untuk Iframe
+    appFrame.addEventListener('load', function() {
+      // Hitung berapa lama waktu yang sudah berlalu
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = MIN_LOAD_TIME - elapsedTime;
+
+      // Jika belum 6 detik, tunggu sisa waktunya
+      if (remainingTime > 0) {
+        console.log(`Konten siap, menunggu ${remainingTime}ms agar genap 6 detik...`);
+        setTimeout(hideLoading, remainingTime);
+      } else {
+        // Jika sudah lebih dari 6 detik, langsung sembunyikan
+        hideLoading();
+      }
     });
     
     window.addEventListener('DOMContentLoaded', loadApp);
